@@ -11,3 +11,7 @@ __pycache__/
 # rebuilt with eval/build_dataset.py because two source datasets restrict redistribution.
 eval/cache/
 eval/data/
+
+# laya-playground-apple: node tooling, local video output, the uv venv
+node_modules/
+video/out/

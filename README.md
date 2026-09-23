@@ -1,91 +1,121 @@
-# Laya playground
+# Lane Runner on laya-apple: MLX GPU vs Apple Neural Engine
 
-A website, three games, a benchmark and an agent skill for [Laya](https://github.com/NandhaKishorM/laya), the open-source decision model: typed questions in, real probabilities out, one forward pass, no generated text. It runs on your own machine.
+The Lane Runner from [wdobry/laya-playground](https://github.com/wdobry/laya-playground), played by the same
+Laya model twice: once on the Mac's GPU through MLX, once on the Apple Neural Engine through Core ML. Both
+run through [laya-apple](https://github.com/tc3oliver/laya-apple). Every decision is a real model call.
+Every latency comes from laya-apple's own per-call measurement.
 
-The live site is at **[brainfunctioncollapse.com/laya](https://brainfunctioncollapse.com/laya)**. It has no model behind it and replays recorded runs. Clone this repository and the same pages run against the real model.
-
-Laya is created by [Nandakishor M](https://github.com/NandhaKishorM) of Convai Innovations. This repository is not his and does not contain the model: it installs his package and downloads his open weights.
-
-## Run it
-
-```bash
-git clone https://github.com/wdobry/laya-playground
-cd laya-playground
-uv venv --python 3.12 && uv pip install laya
-.venv/bin/python server.py
-```
-
-Then open <http://127.0.0.1:8770>. The first start downloads 2.3 GB of open weights and takes about 90 seconds to load them. Apple silicon, NVIDIA or plain CPU.
-
-You get the whole site, live:
-
-- `/` the landing page, where the model plays Flappy, a lane runner and Tetris itself, about 30 decisions a second
-- `/playground` the editor: write some text and a few typed questions, see every answer with its probabilities, compare all three checkpoints
-- `/about` why this exists
-
-The web server itself is the Python standard library and binds to loopback, so nothing is reachable from your network. The only dependency is `laya`.
-
-### Without the model
-
-Any static file server shows the recorded version, exactly as the public site does:
-
-```bash
-python3 -m http.server 8771 --bind 127.0.0.1
-```
-
-Then open <http://127.0.0.1:8771>. The games replay real recorded decisions and say so; the playground answers its presets from recordings.
-
-## The agent skill
-
-One file teaches a coding agent to add Laya to a project properly: the API, questions that work, thresholds, calibration, and the traps found building this site.
-
-```bash
-mkdir -p .claude/skills/laya-integration && curl -fsSL https://brainfunctioncollapse.com/laya/skills/laya-integration/SKILL.md -o .claude/skills/laya-integration/SKILL.md
-```
-
-Claude Code reads `.claude/skills` natively. Any agent that accepts a markdown instruction file can use [the file](skills/laya-integration/SKILL.md) as it is.
-
-## The benchmark
-
-Laya and TypeSafe AI's hosted Jev, on the same 500 labelled examples with the same questions and no tuning. Jev is more accurate out of the box. Laya matches it on simple questions, answers several times faster from a laptop, is free, and is yours to fine-tune. The numbers on the site are rendered from [`static/data/versus.json`](static/data/versus.json), never typed by hand.
-
-To reproduce it:
-
-```bash
-.venv/bin/python eval/build_dataset.py                       # rebuilds the sampled texts from their public sources
-.venv/bin/python server.py                                   # Laya, local: leave it running in another terminal
-TYPESAFE_API_KEY=... .venv/bin/python eval/run_eval.py       # writes static/data/versus.json
-```
-
-Two of the source datasets restrict redistribution, so the sampled texts and the raw API responses are not in this repository. `eval/provenance.json` records where every example comes from. The harness only measures: nothing from Jev is ever fed into Laya.
+<!-- RESULTS -->
 
 ## What is in here
 
+This is a fork of the playground. The game (`static/demos/runner.js`), its physics, its seeded random
+barriers and its decision rule are upstream's, unchanged. This fork adds:
+
 | Path | What it is |
 | --- | --- |
-| `server.py`, `poc.py` | the local model server and the proof of concept it grew from |
-| `index.html`, `about.html`, `playground.html` | the three pages |
-| `static/` | styles, scripts, and the recorded data the public site replays |
-| `static/demos/` | the three games: Flappy, a lane runner and Tetris. Each one describes its situation in a sentence and asks one typed question |
-| `skills/laya-integration/SKILL.md` | the agent skill |
-| `eval/` | the benchmark: dataset builder, tasks, runner |
-| `tools/` | recorders for the replays, and small site checks |
+| `apple_server.py` | The playground server on laya-apple. `/api/predict` takes `"device": "gpu"` or `"ane"` and returns laya-apple's result, including `choice`, `probabilities`, `backend`, `device`, `latency_ms` and `routing_reason` |
+| `benchmark_runner.py` | Plays the Lane Runner headlessly on one device, for a fixed set of seeds |
+| `tools/bench_lane_runner.mjs` | The headless player it drives, with upstream's stepping rules from `tools/record_run.mjs` |
+| `summarize.py` | Writes `results/summary.json` and `results/SUMMARY.md` from every run |
+| `correctness_check.py` | Checks GPU vs ANE decisions on the game's own states, before any speed number |
+| `tools/verify_replay_runs.mjs` | Checks that every recorded run replays to exactly its recorded moves and score |
+| `versus.html`, `static/versus.*` | The side-by-side page: replay of recorded runs, or both devices live |
+| `tools/render_video.mjs` | Renders the video from recorded runs |
+| `results/` | Raw runs (`gpu-run-001.json` …), `summary.json`, `SUMMARY.md`, the correctness report |
+| `traces/` | Full per-decision traces: state, barriers, model input and answer, probabilities, latency, position, score, speed, crashes |
 
-Tools worth knowing:
+The upstream server (`server.py`, torch and upstream `laya`) is still here and still works for the
+other two games. Its README is kept as [`README.upstream.md`](README.upstream.md).
 
-- `tools/record_run.mjs` records a real model-driven game run (`ONLY=tetris` records a single game); `tools/verify_replay.mjs` checks a recording replays identically
-- `tools/record_presets.py` records the playground's preset answers
-- `tools/build_nav.py` stamps the one shared top bar into every page; `tools/build_faq.py` regenerates the FAQ structured data from the visible Q&As
-- `tools/check_widows.mjs` fails if any text block ends on a single word, at three widths
+## How the comparison is kept fair
 
-## Credits
+- **Same model and same prompts.** Both devices run `convaiinnovations/laya-typed-decisions` at the
+  revision laya-apple pins, in FP16, answering the game's own sentence and question.
+- **Same game.** Both devices play the same seeds, so they get the same barrier sequence. Initial speed,
+  acceleration, the 0.25 stay threshold and the physics are upstream's.
+- **Same cadence.** One request is in flight at a time, capped at 40 decisions per game second, as in the
+  browser. While a request is in flight, the game keeps running: it advances by the measured round trip,
+  rounded up to whole 1/120 s steps, before the answer is applied. Upstream's recorder does the same.
+- **Only the device changes.** `device="gpu"` or `device="ane"`. An explicit ANE request never falls back
+  to the GPU. laya-apple raises instead, and the driver also rejects any answer whose reported device is not
+  the one it asked for.
+- **One device at a time.** Each device is measured in its own server process, with only that device
+  loaded, one after the other. `benchmark_runner.py` refuses to start while any other laya-apple process is
+  running.
+- **Every run counts.** Ten seeds per device, all kept. Percentiles are over every decision of every run,
+  and each run's own P50, P95 and P99 are in `results/summary.json`.
 
-**Laya** is created by [Nandakishor M](https://github.com/NandhaKishorM) (Convai Innovations) and released under Apache-2.0: [code](https://github.com/NandhaKishorM/laya), [weights](https://huggingface.co/convaiinnovations/laya), [the original paper](https://arxiv.org/abs/2503.23303), [the follow-up](https://arxiv.org/abs/2510.01237). If Laya is useful to you, support its author.
+The model sees only which lanes are blocked. The game's state sentence says nothing else, so every
+observation is one of 7 sentences. `correctness_check.py` therefore also checks all 8 possible barrier
+patterns exhaustively, alongside 120 states sampled from real games.
 
-This playground, the Laya vs Jev benchmark and the agent skill are by [brain function collapse](https://brainfunctioncollapse.com).
+## Run it
 
-Not affiliated with or endorsed by TypeSafe AI. Jev is their product, named here only to compare.
+You need an Apple silicon Mac, [uv](https://docs.astral.sh/uv/), Node 20 or newer, and Google Chrome (for
+the video only).
 
-## Licence
+```bash
+git clone https://github.com/tc3oliver/laya-playground-apple
+cd laya-playground-apple
+uv sync                    # laya-apple[ane]==1.0.2
+npm install                # playwright-core and ffmpeg-static, for the video only
 
-[MIT](LICENSE) for everything in this repository. Laya itself, its code and its weights, is Apache-2.0 and belongs to its author.
+# The Neural Engine needs a Core ML artifact built and parity-checked on this machine. Do this once.
+uv run laya-apple artifacts build laya-typed-decisions
+```
+
+If your artifacts or weights live outside the default caches, set `LAYA_APPLE_CACHE` and `HF_HOME`.
+
+### Correctness first
+
+```bash
+uv run python correctness_check.py      # results/CORRECTNESS.md; exits non-zero on a hard mismatch
+```
+
+### Benchmark
+
+```bash
+uv run python benchmark_runner.py --device gpu
+uv run python benchmark_runner.py --device ane
+uv run python summarize.py              # results/summary.json, results/SUMMARY.md
+node tools/verify_replay_runs.mjs       # every run replays to its recorded moves and score
+```
+
+The defaults are 10 runs per device, seeds 20260924–20260933 and 90 game seconds per run. Run it on AC
+power, on an otherwise idle machine.
+
+### Watch it
+
+```bash
+uv run python apple_server.py           # both devices loaded
+open http://127.0.0.1:8770/versus                # recorded run 1, replayed; ?run=2 … ?run=10 for the others
+open "http://127.0.0.1:8770/versus?mode=live"    # both devices live, at the same time
+```
+
+In live mode, both devices share the machine at the same time. laya-apple measured that this slows both
+of them down, so live numbers are not the benchmark's.
+
+### Video
+
+```bash
+npm run render                          # video/out/lane-runner-gpu-vs-ane.mp4, 1920x1080, 30 fps
+```
+
+The video replays recorded run 1 of each device step by step: the same decisions, latencies, scores and
+crashes. The video adds only three things: an 8× fast-forward in the middle (labelled on screen), the
+layout, and the closing card, whose numbers are read from `results/summary.json`. To render another run,
+use `RUN=3 npm run render`.
+
+<!-- ENVIRONMENT -->
+
+## Credits and licence
+
+- **The Lane Runner and the playground** are by [brain function collapse](https://brainfunctioncollapse.com)
+  ([wdobry/laya-playground](https://github.com/wdobry/laya-playground)), MIT licence. See [`LICENSE`](LICENSE),
+  which is kept unchanged. This fork's additions are under the same licence.
+- **Laya** is by [Nandakishor M](https://github.com/NandhaKishorM) (Convai Innovations), Apache-2.0:
+  [code](https://github.com/NandhaKishorM/laya), [weights](https://huggingface.co/convaiinnovations).
+- **laya-apple** is the Apple-native runtime: [tc3oliver/laya-apple](https://github.com/tc3oliver/laya-apple).
+
+This fork is not affiliated with Apple, Convai Innovations or brain function collapse.

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lane Runner: MLX GPU vs Apple Neural Engine</title>
+<meta name="description" content="The Laya playground's Lane Runner, played by the same model on the MLX GPU and on the Apple Neural Engine through laya-apple. Every number is measured.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="static/style.css">
+<link rel="stylesheet" href="static/versus.css">
+</head>
+<body class="versus">
+<header class="vs-head">
+  <div>
+    <h1 class="vs-title">Same AI. Same Mac.</h1>
+    <p class="vs-sub">MLX GPU vs Apple Neural Engine.</p>
+  </div>
+  <p class="vs-meta" id="meta">—</p>
+</header>
+<main class="vs-sides">
+  <section class="vs-side" data-device="gpu"></section>
+  <section class="vs-side" data-device="ane"></section>
+</main>
+<footer class="vs-foot">
+  <span id="source">—</span>
+  <span class="sp"></span>
+  <span id="rate"></span>
+  <span class="vs-repo">laya-apple · github.com/tc3oliver/laya-apple</span>
+</footer>
+<div class="vs-card" id="card" hidden></div>
+<script type="module" src="static/versus.js"></script>
+</body>
+</html>
