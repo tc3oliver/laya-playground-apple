@@ -69,13 +69,14 @@ def outcome_diff(gpu, ane):
         a = by.get(g["seed"])
         if a is None:
             continue
-        # a decision is (step observed, step applied, action); probabilities differ in the last FP16 bits by design
-        stream = lambda r: [(d[0], d[1], act) for d, act in zip(r["decisions"], r["actions"])]  # noqa: E731
+        keys = ("rows_cleared", "crashes", "decisions", "max_speed", "action_counts", "score", "best")
         rows.append({"seed": g["seed"],
-                     "gpu": {k: g["summary"][k] for k in ("rows_cleared", "crashes", "decisions", "max_speed")},
-                     "ane": {k: a["summary"][k] for k in ("rows_cleared", "crashes", "decisions", "max_speed")},
-                     "same_decision_steps": [d[:2] for d in g["decisions"]] == [d[:2] for d in a["decisions"]],
-                     "identical_decision_stream": stream(g) == stream(a)})
+                     "gpu": {k: g["summary"][k] for k in keys}, "ane": {k: a["summary"][k] for k in keys},
+                     "same_outcome": all(g["summary"][k] == a["summary"][k] for k in keys),
+                     "same_action_sequence": g["actions"] == a["actions"],
+                     # probabilities differ in the last FP16 bits by design; timing differs when one device answers a step sooner
+                     "decisions_at_different_steps": sum(x[:2] != y[:2] for x, y in zip(g["decisions"], a["decisions"])),
+                     "ane_answered_a_step_sooner": sum((y[1] - y[0]) < (x[1] - x[0]) for x, y in zip(g["decisions"], a["decisions"]))})
     return rows
 
 
@@ -101,13 +102,19 @@ def md(summary):
                 max(s["max_speed"]), np.median(s["decisions_per_game_second"]), np.median(s["decisions_per_wall_second"])))
     L += ["", "Actions: " + "; ".join("%s %s" % (NAMES[d], json.dumps(s["action_counts"])) for d, s in (("gpu", g), ("ane", a)) if s), ""]
     if summary.get("per_seed"):
-        same = sum(r["identical_decision_stream"] for r in summary["per_seed"])
+        ps = summary["per_seed"]
         L += ["## Same seed, same game?", "",
-              "%d of %d seeds produced an identical stream of decisions on both devices: the same action at the same game step, every time." % (same, len(summary["per_seed"])), "",
-              "| Seed | GPU rows / crashes | ANE rows / crashes | Same decision steps | Same actions |", "|---|---|---|---|---|"]
-        for r in summary["per_seed"]:
-            L.append("| %d | %d / %d | %d / %d | %s | %s |" % (r["seed"], r["gpu"]["rows_cleared"], r["gpu"]["crashes"], r["ane"]["rows_cleared"],
-                                                            r["ane"]["crashes"], "yes" if r["same_decision_steps"] else "no", "yes" if r["identical_decision_stream"] else "no"))
+              "%d of %d seeds ended identically on both devices: rows cleared, crashes, score, decisions, top speed and action counts. "
+              "%d of %d played the same sequence of actions. The timing is not identical: the game keeps running while a request is in "
+              "flight, and the ANE's shorter round trip sometimes lands an answer one 1/120 s step sooner, which can shift when a later "
+              "barrier is seen." % (sum(r["same_outcome"] for r in ps), len(ps), sum(r["same_action_sequence"] for r in ps), len(ps)), "",
+              "| Seed | GPU rows / crashes | ANE rows / crashes | Same outcome | Same action sequence | Decisions at a different step |",
+              "|---|---|---|---|---|---:|"]
+        for r in ps:
+            L.append("| %d | %d / %d | %d / %d | %s | %s | %d of %d |" % (
+                r["seed"], r["gpu"]["rows_cleared"], r["gpu"]["crashes"], r["ane"]["rows_cleared"], r["ane"]["crashes"],
+                "yes" if r["same_outcome"] else "**no**", "yes" if r["same_action_sequence"] else "no",
+                r["decisions_at_different_steps"], r["gpu"]["decisions"]))
     L += ["", "## Method", "", summary["method"], ""]
     return "\n".join(L)
 

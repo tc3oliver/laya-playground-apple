@@ -1,0 +1,37 @@
+{
+ "device": "gpu",
+ "seeds": [
+  20260924,
+  20260925,
+  20260926,
+  20260927,
+  20260928,
+  20260929,
+  20260930,
+  20260931,
+  20260932,
+  20260933
+ ],
+ "seconds": 90,
+ "before": {
+  "time": "2026-09-24T08:09:11+0800",
+  "loadavg": [
+   2.74951171875,
+   1.986328125,
+   2.01806640625
+  ],
+  "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+  "power": "Now drawing from 'AC Power'"
+ },
+ "after": {
+  "time": "2026-09-24T08:13:49+0800",
+  "loadavg": [
+   2.76123046875,
+   2.2265625,
+   2.09423828125
+  ],
+  "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+  "power": "Now drawing from 'AC Power'"
+ },
+ "other_laya_processes": []
+}

@@ -166,14 +166,14 @@ function card(runs) {
     ['Rows cleared, median run', String(median(g.rows_cleared)), String(median(a.rows_cleared))],
     ['Crashes, all runs', String(g.total_crashes), String(a.total_crashes)],
   ];
-  const same = s.per_seed.filter(r => r.identical_decision_stream).length;
+  const same = s.per_seed.filter(r => r.same_outcome).length;
   const env = s.environment.gpu;
   $('#card').replaceChildren(
     h('h2', {}, 'Measured'),
     h('table', {}, h('thead', {}, h('tr', {}, h('th'), h('th', {}, NAME.gpu), h('th', {}, NAME.ane))),
       h('tbody', {}, rows.map(([k, x, y, cls]) => h('tr', {}, h('td', {}, k), h('td', { class: cls || '' }, x), h('td', { class: cls || '' }, y))))),
     h('p', {}, `${g.runs} runs per device, the same ${g.runs} seeds, ${s.seconds} game seconds each. ${g.decisions.toLocaleString('en')} GPU and ${a.decisions.toLocaleString('en')} ANE decisions. `
-      + `Latency is laya-apple's own per-call measurement. Each device measured alone. ${same} of ${s.per_seed.length} seeds: identical moves on both devices.`),
+      + `Latency is laya-apple's own per-call measurement. Each device measured alone. Same score and crashes on ${same} of ${s.per_seed.length} seeds.`),
     h('p', {}, [`laya-typed-decisions`, env.soc, `macOS ${env.macos}`, `laya-apple ${env.laya_apple}`, `MLX ${env.mlx}`, `coremltools ${env.coremltools}`].filter(Boolean).join(' · ')),
     h('div', { class: 'repo' }, 'laya-apple  ', h('span', {}, 'github.com/tc3oliver/laya-apple')));
 }

@@ -14,8 +14,8 @@ export class RunReplay {
     this.latest = null; this.ema = 0; this.applied = [];   // applied: steps at which decisions landed, for decisions/s
   }
 
-  /** Advance one fixed step: apply a decision landing now, observe if one starts now, then update the game. */
-  tick() {
+  /** Apply the decision that lands at the current step, if one does. */
+  land() {
     const { run, inst } = this, d = run.decisions;
     if (this.pending && this.ri < d.length && d[this.ri][1] === this.step) {
       const rec = d[this.ri], answers = answersFrom(this.pending, rec[2]);
@@ -26,6 +26,12 @@ export class RunReplay {
       this.applied.push(this.step);
       this.pending = null; this.ri++;
     }
+  }
+
+  /** Advance one fixed step: apply a decision landing now, observe if one starts now, then update the game. */
+  tick() {
+    const { run, inst } = this, d = run.decisions;
+    this.land();
     if (!this.pending && this.ri < d.length && d[this.ri][0] === this.step) this.pending = inst.observe();
     const wasDead = inst.dead > 0;
     inst.update(STEP, {});
@@ -37,7 +43,10 @@ export class RunReplay {
   }
 
   /** Step until `step` (never backwards). */
-  seek(step) { while (this.step < Math.min(step, this.run.steps)) this.tick(); }
+  seek(step) {
+    while (this.step < Math.min(step, this.run.steps)) this.tick();
+    if (this.step === this.run.steps) this.land();   // the recorder applies an answer that returns on the last step
+  }
 
   get done() { return this.step >= this.run.steps; }
   get decisionsPerSecond() { return this.applied.length; }   // decisions landed in the last game second

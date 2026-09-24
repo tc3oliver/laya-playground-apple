@@ -5,7 +5,41 @@ Laya model twice: once on the Mac's GPU through MLX, once on the Apple Neural En
 run through [laya-apple](https://github.com/tc3oliver/laya-apple). Every decision is a real model call.
 Every latency comes from laya-apple's own per-call measurement.
 
-<!-- RESULTS -->
+## Result
+
+Measured on an Apple M4 Max: 10 runs per device, the same 10 seeds, 90 game seconds each, 28,826
+decisions per device. Source: [`results/SUMMARY.md`](results/SUMMARY.md) and
+[`results/summary.json`](results/summary.json), generated from the raw runs.
+
+| | MLX GPU | Apple Neural Engine |
+| --- | ---: | ---: |
+| Latency P50 | 9.24 ms | 8.19 ms |
+| Latency P95 | 9.69 ms | 8.30 ms |
+| Latency P99 | 9.76 ms | 8.40 ms |
+| Latency mean | 9.33 ms | 8.20 ms |
+| Latency max | 10.75 ms | 27.01 ms |
+| Rows cleared, median run (min–max) | 51.5 (32–57) | 51.5 (32–57) |
+| Crashes, all runs | 164 | 164 |
+| Top game speed | 23.18 | 23.18 |
+| Decisions per game second, median | 32.43 | 32.43 |
+
+- **Both devices make the same decisions.** Across 128 game states, GPU and ANE probabilities differ
+  by at most 0.0043, against laya-apple's FP16 tolerance of 0.02. There are no hard mismatches and no
+  near-tie flips, and the game's move is the same in every case
+  ([`results/CORRECTNESS.md`](results/CORRECTNESS.md)).
+- **The ANE answers about 1 ms sooner:** P50 8.19 ms against 9.24 ms, P95 8.30 ms against 9.69 ms. The
+  ANE had two slow calls out of 28,826 (25.2 and 27.0 ms); its P99 is 8.40 ms. The GPU's slowest was 10.75 ms.
+- **The game result is the same on both devices, seed for seed.** Rows cleared, crashes, score, top speed
+  and action counts match on all 10 seeds. At this game's cap of 40 decisions per second, both devices
+  keep up. The ANE's shorter round trip sometimes lands an answer one 1/120 s step sooner, so on one
+  seed two moves come in a different order, with the same outcome.
+- **The runner crashes often on both devices, for the same reason.** Take the middle lane with the left
+  and middle blocked. `laya-typed-decisions` gives P(middle empty) = 0.26 there, and the game stays
+  whenever P(current lane empty) ≥ 0.25, upstream's default. The runner stays and hits the barrier. Both
+  devices and the FP32 reference agree, so it is how this checkpoint answers this prompt, not a device
+  difference. Every crash resets the speed, which is why the top speed stays near 23 of the game's 31.
+  Upstream plays this game with the `english` checkpoint instead.
+
 
 ## What is in here
 
@@ -107,7 +141,21 @@ crashes. The video adds only three things: an 8× fast-forward in the middle (la
 layout, and the closing card, whose numbers are read from `results/summary.json`. To render another run,
 use `RUN=3 npm run render`.
 
-<!-- ENVIRONMENT -->
+## Environment of the recorded results
+
+| | |
+| --- | --- |
+| Hardware | Apple M4 Max, 64 GB, on AC power |
+| macOS | 26.6.2 (25G83) |
+| Python | 3.12.14 (uv) |
+| laya-apple | 1.0.2 from PyPI (tag `v1.0.2`, `d874805`) |
+| MLX | 0.32.2 |
+| coremltools | 9.0 |
+| Model | `convaiinnovations/laya-typed-decisions`, revision `f9ab0b228f0fc0f14d873dbc99038f135c2da1b2`, FP16 on both devices |
+| ANE artifact | `bc1s-masked`, bucket L64 (every prompt is 36–45 tokens), `artifact_sha256` `1273fcd30495…`, 10,594 ops of 10,594 on the Neural Engine with 0 transitions, parity passed (probability max \|Δ\| 0.0046, 0 hard mismatches), built locally by `laya-apple artifacts build` |
+| GPU runtime | MLX, weights `mlx:4fa56de72383`, FP16 |
+| Load | Load average and `pmset` thermal state before and after each device are in `results/<device>-system.json`. No other laya-apple process was running |
+
 
 ## Credits and licence
 

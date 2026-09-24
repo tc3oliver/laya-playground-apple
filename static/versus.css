@@ -32,7 +32,7 @@ body.versus { min-height: 100vh; display: flex; flex-direction: column; gap: var
 .vs-prob.top { color: var(--text); }
 .vs-prob.top i::after { background: var(--amber); }
 
-.vs-foot { display: flex; gap: var(--s3); align-items: center; flex-wrap: wrap; font: var(--fs-mono)/1.5 var(--mono); color: var(--dim); }
+.vs-foot { padding: 12px 0 0; display: flex; gap: var(--s3); align-items: center; flex-wrap: wrap; font: var(--fs-mono)/1.5 var(--mono); color: var(--dim); }
 .vs-repo { color: var(--text); }
 #rate:not(:empty) { color: var(--ink); background: var(--amber); padding: 0 8px; font-weight: 700; letter-spacing: .06em; }
 

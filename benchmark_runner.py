@@ -23,17 +23,18 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 
 
 def other_laya_processes():
-    """Command lines of running processes that look like laya-apple or MLX work, except ours."""
-    out = subprocess.run(["ps", "-Ao", "pid=,command="], capture_output=True, text=True, env=dict(os.environ, LC_ALL="C")).stdout
-    mine = {os.getpid(), os.getppid()}
-    hits = []
+    """Command lines of running laya-apple or benchmark processes, except this one and its ancestors."""
+    out = subprocess.run(["ps", "-Ao", "pid=,ppid=,command="], capture_output=True, text=True, env=dict(os.environ, LC_ALL="C")).stdout
+    procs = {}
     for line in out.splitlines():
-        pid, _, cmd = line.strip().partition(" ")
-        if int(pid) in mine:
-            continue
-        if any(k in cmd for k in ("laya_apple", "laya-apple ", "apple_server.py", "interference.py", "bench_concurrency")):
-            hits.append(line.strip())
-    return hits
+        pid, ppid, cmd = (line.strip().split(None, 2) + [""])[:3]
+        procs[int(pid)] = (int(ppid), cmd)
+    mine, pid = set(), os.getpid()
+    while pid in procs and pid not in mine:  # the shell and uv that started us mention the same paths
+        mine.add(pid)
+        pid = procs[pid][0]
+    keys = ("laya_apple", "apple_server.py", "interference.py", "gil_probe", "bench_concurrency", "laya-apple/.venv")
+    return ["%d %s" % (p, cmd) for p, (_, cmd) in procs.items() if p not in mine and any(k in cmd for k in keys)]
 
 
 def system_state():
