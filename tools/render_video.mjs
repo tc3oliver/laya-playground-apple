@@ -5,6 +5,7 @@
 //
 //     npm run render                      # video/out/lane-runner-gpu-vs-ane.mp4, 1920x1080, 30 fps
 //     RUN=3 npm run render                # another recorded run
+//     SET=english npm run render          # the runs in results/english/ (upstream's checkpoint for this game)
 //
 // Needs Google Chrome (driven by playwright-core) and the ffmpeg binary from ffmpeg-static.
 import { createServer } from 'node:http';
@@ -16,8 +17,8 @@ import { chromium } from 'playwright-core';
 import ffmpeg from 'ffmpeg-static';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
-const OUT = join(ROOT, 'video', 'out'), RUN = +(process.env.RUN || 1);
-const FILE = join(OUT, process.env.OUTPUT || 'lane-runner-gpu-vs-ane.mp4');
+const OUT = join(ROOT, 'video', 'out'), RUN = +(process.env.RUN || 1), SET = process.env.SET || '';
+const FILE = join(OUT, process.env.OUTPUT || `lane-runner-gpu-vs-ane${SET ? '-' + SET : ''}.mp4`);
 const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png' };
 
 // static files only, loopback only, nothing outside the repository
@@ -29,7 +30,7 @@ const server = createServer((req, res) => {
   res.end(readFileSync(full));
 }).listen(0, '127.0.0.1');
 await new Promise(r => server.once('listening', r));
-const url = `http://127.0.0.1:${server.address().port}/versus.html?render&run=${RUN}`;
+const url = `http://127.0.0.1:${server.address().port}/versus.html?render&run=${RUN}${SET ? '&set=' + SET : ''}`;
 
 mkdirSync(OUT, { recursive: true });
 const browser = await chromium.launch({ channel: 'chrome', headless: true });
@@ -52,7 +53,7 @@ for (let f = 0; f < frames; f++) {
   const at = await page.evaluate(f => window.vsRender.seek(f), f);
   const png = await page.screenshot({ type: 'png' });
   if (!enc.stdin.write(png)) await new Promise(r => enc.stdin.once('drain', r));
-  if (stills.has(f)) writeFileSync(join(OUT, `frame-${String(f).padStart(4, '0')}.png`), png);
+  if (stills.has(f)) writeFileSync(join(OUT, `frame${SET ? '-' + SET : ''}-${String(f).padStart(4, '0')}.png`), png);
   log.push({ frame: f, ...at });
   if (f % fps === 0) process.stdout.write(`\rframe ${f}/${frames}`);
 }
@@ -60,5 +61,5 @@ enc.stdin.end();
 await done;
 await browser.close();
 server.close();
-writeFileSync(join(OUT, 'render-log.json'), JSON.stringify({ run: RUN, fps, frames, file: FILE, timeline: log }));
+writeFileSync(join(OUT, `render-log${SET ? '-' + SET : ''}.json`), JSON.stringify({ run: RUN, fps, frames, file: FILE, timeline: log }));
 console.log(`\nwrote ${FILE}: ${frames} frames, ${(frames / fps).toFixed(1)} s at ${fps} fps, 1920x1080`);

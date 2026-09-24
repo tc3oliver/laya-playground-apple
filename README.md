@@ -41,6 +41,31 @@ decisions per device. Source: [`results/SUMMARY.md`](results/SUMMARY.md) and
   Upstream plays this game with the `english` checkpoint instead.
 
 
+### The same comparison with upstream's checkpoint
+
+Upstream plays the Lane Runner with the `english` checkpoint (`convaiinnovations/laya`). The same pipeline,
+the same 10 seeds, with results kept apart in [`results/english/`](results/english/SUMMARY.md):
+
+| `convaiinnovations/laya` | MLX GPU | Apple Neural Engine |
+| --- | ---: | ---: |
+| Latency P50 | 9.24 ms | 8.19 ms |
+| Latency P95 | 9.69 ms | 8.30 ms |
+| Latency P99 | 9.76 ms | 8.40 ms |
+| Latency max | 13.62 ms | 29.16 ms |
+| Rows cleared, every run | 185 | 185 |
+| Crashes, all runs | 0 | 0 |
+| Top game speed | 31.0 (the game's cap) | 31.0 (the game's cap) |
+| Decisions per game second | 40.0 (the cap) | 40.0 (the cap) |
+
+- GPU and ANE probabilities differ by at most 0.0020, with 0 mismatches of any kind
+  ([`results/english/CORRECTNESS.md`](results/english/CORRECTNESS.md)).
+- Every blocked lane gets P ≤ 0.10, so the runner never stays in one. It reaches the top speed and never
+  crashes on either device.
+- With no crash, the score does not depend on the seed. The row spacing and speed depend only on score
+  and time, so every run clears 185 rows, although the barrier patterns differ from seed to seed.
+- The latencies match the `typed-decisions` runs to within 0.01 ms. Both checkpoints have the same
+  architecture and produce the same prompt lengths (36–45 tokens), so they cost the same.
+
 ## What is in here
 
 This is a fork of the playground. The game (`static/demos/runner.js`), its physics, its seeded random
@@ -114,6 +139,13 @@ uv run python benchmark_runner.py --device gpu
 uv run python benchmark_runner.py --device ane
 uv run python summarize.py              # results/summary.json, results/SUMMARY.md
 node tools/verify_replay_runs.mjs       # every run replays to its recorded moves and score
+
+# upstream's checkpoint for this game, into results/english/ and traces/english/
+uv run python correctness_check.py --model convaiinnovations/laya --out results/english
+uv run python benchmark_runner.py --device gpu --model convaiinnovations/laya --out english
+uv run python benchmark_runner.py --device ane --model convaiinnovations/laya --out english
+uv run python summarize.py --results results/english
+node tools/verify_replay_runs.mjs results/english
 ```
 
 The defaults are 10 runs per device, seeds 20260924–20260933 and 90 game seconds per run. Run it on AC
@@ -134,6 +166,7 @@ of them down, so live numbers are not the benchmark's.
 
 ```bash
 npm run render                          # video/out/lane-runner-gpu-vs-ane.mp4, 1920x1080, 30 fps
+SET=english npm run render              # video/out/lane-runner-gpu-vs-ane-english.mp4
 ```
 
 The video replays recorded run 1 of each device step by step: the same decisions, latencies, scores and
@@ -152,6 +185,7 @@ use `RUN=3 npm run render`.
 | MLX | 0.32.2 |
 | coremltools | 9.0 |
 | Model | `convaiinnovations/laya-typed-decisions`, revision `f9ab0b228f0fc0f14d873dbc99038f135c2da1b2`, FP16 on both devices |
+| ANE artifact (english) | `convaiinnovations/laya` revision `c5d78730f3493e4fe16d61507ef4b78eef7318cf`, `bc1s-masked` L64, `artifact_sha256` `f6263eb65898…`, 10,594 of 10,594 ops on the Neural Engine, parity passed (probability max \|Δ\| 0.0093), built locally |
 | ANE artifact | `bc1s-masked`, bucket L64 (every prompt is 36–45 tokens), `artifact_sha256` `1273fcd30495…`, 10,594 ops of 10,594 on the Neural Engine with 0 transitions, parity passed (probability max \|Δ\| 0.0046, 0 hard mismatches), built locally by `laya-apple artifacts build` |
 | GPU runtime | MLX, weights `mlx:4fa56de72383`, FP16 |
 | Load | Load average and `pmset` thermal state before and after each device are in `results/<device>-system.json`. No other laya-apple process was running |

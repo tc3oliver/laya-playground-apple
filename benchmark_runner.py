@@ -4,6 +4,9 @@
     uv run python benchmark_runner.py --device ane
     uv run python summarize.py                      # results/summary.json and results/SUMMARY.md
 
+    # the same comparison with upstream's checkpoint for this game, kept apart from the main results
+    uv run python benchmark_runner.py --device gpu --model convaiinnovations/laya --out english
+
 Each call starts apple_server.py with only that device loaded, plays --runs games (seeds
 --seed-base, --seed-base+1, ...) with tools/bench_lane_runner.mjs, and stops the server. The two
 devices are never measured at the same time, and never while another laya-apple process runs:
@@ -48,7 +51,7 @@ def system_state():
             "thermal": run("pmset", "-g", "therm"), "power": run("pmset", "-g", "ps")}
 
 
-def wait_ready(api, proc, timeout=600):
+def wait_ready(api, proc, name, timeout=600):
     t0 = time.time()
     while time.time() - t0 < timeout:
         if proc.poll() is not None:
@@ -56,7 +59,7 @@ def wait_ready(api, proc, timeout=600):
         try:
             with urllib.request.urlopen(api + "/api/health", timeout=2) as r:
                 health = json.load(r)
-            if health["models"].get("typed-decisions") == "ready":
+            if health["models"].get(name) == "ready":
                 return health
         except OSError:
             pass
@@ -72,6 +75,8 @@ def main():
     ap.add_argument("--seconds", type=int, default=90, help="game seconds per run")
     ap.add_argument("--warmup", type=int, default=50, help="untimed calls before the first run")
     ap.add_argument("--port", type=int, default=8781)
+    ap.add_argument("--model", default="convaiinnovations/laya-typed-decisions")
+    ap.add_argument("--out", default="", help="subdirectory of results/ and traces/ for this set (default: none)")
     ap.add_argument("--allow-concurrent", action="store_true", help="run even if other laya-apple work is running")
     args = ap.parse_args()
 
@@ -83,17 +88,22 @@ def main():
     api = "http://127.0.0.1:%d" % args.port
     seeds = [args.seed_base + i for i in range(args.runs)]
     before = system_state()
-    server = subprocess.Popen([sys.executable, os.path.join(ROOT, "apple_server.py"), "--device", args.device, "--port", str(args.port)])
+    names = {"convaiinnovations/laya": "english", "convaiinnovations/laya-multilingual": "multilingual",
+             "convaiinnovations/laya-typed-decisions": "typed-decisions"}
+    results, traces = os.path.join(ROOT, "results", args.out), os.path.join(ROOT, "traces", args.out)
+    server = subprocess.Popen([sys.executable, os.path.join(ROOT, "apple_server.py"), "--device", args.device, "--port", str(args.port),
+                               "--model", args.model])
     try:
-        health = wait_ready(api, server)
+        health = wait_ready(api, server, names[args.model])
         print("[bench] %s ready: laya-apple %s, mlx %s, coremltools %s" % (args.device, health["laya_apple"], health["mlx"], health["coremltools"]), flush=True)
         subprocess.run(["node", os.path.join(ROOT, "tools", "bench_lane_runner.mjs"), "--api", api, "--device", args.device,
-                        "--seeds", ",".join(map(str, seeds)), "--seconds", str(args.seconds), "--warmup", str(args.warmup)],
+                        "--seeds", ",".join(map(str, seeds)), "--seconds", str(args.seconds), "--warmup", str(args.warmup),
+                        "--model", args.model, "--results", results + os.sep, "--traces", traces + os.sep],
                        check=True)
     finally:
         server.terminate()
         server.wait(timeout=30)
-    with open(os.path.join(ROOT, "results", "%s-system.json" % args.device), "w") as f:
+    with open(os.path.join(results, "%s-system.json" % args.device), "w") as f:
         json.dump({"device": args.device, "seeds": seeds, "seconds": args.seconds, "before": before, "after": system_state(),
                    "other_laya_processes": others}, f, indent=1)
 

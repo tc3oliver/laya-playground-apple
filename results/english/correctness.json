@@ -1,0 +1,321 @@
+{
+ "model": "convaiinnovations/laya",
+ "tolerance": 0.02,
+ "near_tie_band": 0.04,
+ "stay_threshold": 0.25,
+ "states": 128,
+ "states_from_games": 120,
+ "unique_prompts": 8,
+ "configs": {
+  "gpu": {
+   "device": "gpu",
+   "dtype": "float16",
+   "sequence_lengths": [
+    36,
+    39,
+    42,
+    45
+   ],
+   "routing_reasons": [
+    "gpu_requested"
+   ],
+   "artifact_revisions": [
+    "mlx:891102d37268:float16"
+   ],
+   "all_repeats_identical": true,
+   "ane_buckets": []
+  },
+  "ane": {
+   "device": "ane",
+   "dtype": "float16",
+   "sequence_lengths": [
+    36,
+    39,
+    42,
+    45
+   ],
+   "routing_reasons": [
+    "ane_requested"
+   ],
+   "artifact_revisions": [
+    "L64:f6263eb65898"
+   ],
+   "all_repeats_identical": true,
+   "ane_buckets": [
+    64,
+    96,
+    128
+   ]
+  },
+  "gpu32": {
+   "device": "gpu",
+   "dtype": "float32",
+   "sequence_lengths": [
+    36,
+    39,
+    42,
+    45
+   ],
+   "routing_reasons": [
+    "gpu_requested"
+   ],
+   "artifact_revisions": [
+    "mlx:891102d37268:float32"
+   ],
+   "all_repeats_identical": true,
+   "ane_buckets": []
+  }
+ },
+ "pairs": {
+  "gpu_vs_ane": {
+   "prob_max_abs": 0.0020000000000000018,
+   "within_tolerance": true,
+   "hard_mismatches": [],
+   "near_tie_flips": [],
+   "game_action_mismatches": [],
+   "chosen_action_agreement": 1.0
+  },
+  "gpu_vs_gpu32": {
+   "prob_max_abs": 0.0009000000000000119,
+   "within_tolerance": true,
+   "hard_mismatches": [],
+   "near_tie_flips": [],
+   "game_action_mismatches": [],
+   "chosen_action_agreement": 1.0
+  },
+  "ane_vs_gpu32": {
+   "prob_max_abs": 0.0022000000000000908,
+   "within_tolerance": true,
+   "hard_mismatches": [],
+   "near_tie_flips": [],
+   "game_action_mismatches": [],
+   "chosen_action_agreement": 1.0
+  }
+ },
+ "by_prompt": [
+  {
+   "state": "The left lane is empty. The middle lane is empty. The right lane is empty.",
+   "count": 4,
+   "gpu": {
+    "choice": "left",
+    "probabilities": [
+     0.8834,
+     0.0789,
+     0.0377
+    ]
+   },
+   "ane": {
+    "choice": "left",
+    "probabilities": [
+     0.8829,
+     0.0789,
+     0.0381
+    ]
+   },
+   "gpu32": {
+    "choice": "left",
+    "probabilities": [
+     0.8833,
+     0.0788,
+     0.0379
+    ]
+   }
+  },
+  {
+   "state": "The left lane is empty. The middle lane is empty. The right lane is blocked by a barrier.",
+   "count": 21,
+   "gpu": {
+    "choice": "left",
+    "probabilities": [
+     0.9187,
+     0.068,
+     0.0133
+    ]
+   },
+   "ane": {
+    "choice": "left",
+    "probabilities": [
+     0.9171,
+     0.0694,
+     0.0135
+    ]
+   },
+   "gpu32": {
+    "choice": "left",
+    "probabilities": [
+     0.9183,
+     0.0684,
+     0.0133
+    ]
+   }
+  },
+  {
+   "state": "The left lane is blocked by a barrier. The middle lane is empty. The right lane is empty.",
+   "count": 20,
+   "gpu": {
+    "choice": "middle",
+    "probabilities": [
+     0.0608,
+     0.8496,
+     0.0896
+    ]
+   },
+   "ane": {
+    "choice": "middle",
+    "probabilities": [
+     0.0613,
+     0.8489,
+     0.0898
+    ]
+   },
+   "gpu32": {
+    "choice": "middle",
+    "probabilities": [
+     0.0609,
+     0.8491,
+     0.0899
+    ]
+   }
+  },
+  {
+   "state": "The left lane is blocked by a barrier. The middle lane is blocked by a barrier. The right lane is empty.",
+   "count": 14,
+   "gpu": {
+    "choice": "right",
+    "probabilities": [
+     0.0444,
+     0.0705,
+     0.8851
+    ]
+   },
+   "ane": {
+    "choice": "right",
+    "probabilities": [
+     0.0444,
+     0.072,
+     0.8836
+    ]
+   },
+   "gpu32": {
+    "choice": "right",
+    "probabilities": [
+     0.0444,
+     0.0708,
+     0.8849
+    ]
+   }
+  },
+  {
+   "state": "The left lane is empty. The middle lane is blocked by a barrier. The right lane is blocked by a barrier.",
+   "count": 18,
+   "gpu": {
+    "choice": "left",
+    "probabilities": [
+     0.9546,
+     0.0257,
+     0.0197
+    ]
+   },
+   "ane": {
+    "choice": "left",
+    "probabilities": [
+     0.955,
+     0.0254,
+     0.0196
+    ]
+   },
+   "gpu32": {
+    "choice": "left",
+    "probabilities": [
+     0.9546,
+     0.0257,
+     0.0197
+    ]
+   }
+  },
+  {
+   "state": "The left lane is empty. The middle lane is blocked by a barrier. The right lane is empty.",
+   "count": 31,
+   "gpu": {
+    "choice": "left",
+    "probabilities": [
+     0.8769,
+     0.0408,
+     0.0823
+    ]
+   },
+   "ane": {
+    "choice": "left",
+    "probabilities": [
+     0.8786,
+     0.0402,
+     0.0812
+    ]
+   },
+   "gpu32": {
+    "choice": "left",
+    "probabilities": [
+     0.8764,
+     0.0411,
+     0.0825
+    ]
+   }
+  },
+  {
+   "state": "The left lane is blocked by a barrier. The middle lane is empty. The right lane is blocked by a barrier.",
+   "count": 19,
+   "gpu": {
+    "choice": "middle",
+    "probabilities": [
+     0.1021,
+     0.851,
+     0.0469
+    ]
+   },
+   "ane": {
+    "choice": "middle",
+    "probabilities": [
+     0.1029,
+     0.849,
+     0.0481
+    ]
+   },
+   "gpu32": {
+    "choice": "middle",
+    "probabilities": [
+     0.1026,
+     0.8501,
+     0.0473
+    ]
+   }
+  },
+  {
+   "state": "The left lane is blocked by a barrier. The middle lane is blocked by a barrier. The right lane is blocked by a barrier.",
+   "count": 1,
+   "gpu": {
+    "choice": "left",
+    "probabilities": [
+     0.6942,
+     0.2088,
+     0.097
+    ]
+   },
+   "ane": {
+    "choice": "left",
+    "probabilities": [
+     0.6956,
+     0.2082,
+     0.0962
+    ]
+   },
+   "gpu32": {
+    "choice": "left",
+    "probabilities": [
+     0.6939,
+     0.2093,
+     0.0967
+    ]
+   }
+  }
+ ]
+}

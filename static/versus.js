@@ -17,6 +17,7 @@ import { h } from './ui.js';
 const q = new URLSearchParams(location.search);
 const RENDER = q.has('render'), MODE = RENDER ? 'render' : q.get('mode') || 'replay';
 const RUN = String(+(q.get('run') || 1)).padStart(3, '0');
+const SET = /^[a-z0-9-]+$/.test(q.get('set') || '') ? `results/${q.get('set')}/` : 'results/';   // ?set=english: the upstream-checkpoint runs
 const LANES = ['left', 'middle', 'right'], TONES = ['#0c0c0c', '#ffc609'];
 const NAME = { gpu: 'MLX GPU', ane: 'Apple Neural Engine' };
 const SUB = { gpu: 'MLX · FP16', ane: 'Core ML · FP16 · Neural Engine' };
@@ -60,14 +61,16 @@ const sides = Object.fromEntries(['gpu', 'ane'].map(d => [d, new Side(document.q
 
 async function json(url) { const r = await fetch(url, { cache: 'no-store' }); if (!r.ok) throw new Error(`${url}: ${r.status}`); return r.json(); }
 
-function metaLine(env, seed) {
-  return [`laya-typed-decisions`, `seed ${seed}`, env.soc, env.macos && `macOS ${env.macos}`, env.laya_apple && `laya-apple ${env.laya_apple}`].filter(Boolean).join(' · ');
+const shortModel = m => (m || 'laya-typed-decisions').split('/').pop();
+
+function metaLine(env, seed, model) {
+  return [shortModel(model), `seed ${seed}`, env.soc, env.macos && `macOS ${env.macos}`, env.laya_apple && `laya-apple ${env.laya_apple}`].filter(Boolean).join(' · ');
 }
 
 async function loadRuns() {
-  const [gpu, ane] = await Promise.all([json(`results/gpu-run-${RUN}.json`), json(`results/ane-run-${RUN}.json`)]);
+  const [gpu, ane] = await Promise.all([json(`${SET}gpu-run-${RUN}.json`), json(`${SET}ane-run-${RUN}.json`)]);
   if (gpu.seed !== ane.seed || gpu.steps !== ane.steps) throw new Error('the two recorded runs do not share a seed and length');
-  const summary = await json('results/summary.json').catch(() => null);
+  const summary = await json(`${SET}summary.json`).catch(() => null);
   return { gpu, ane, summary };
 }
 
@@ -76,7 +79,7 @@ const view = r => ({ inst: r.inst, latest: r.latest, ema: r.ema, dps: r.decision
 // ------------------------------------------------------------------ replay: real time, looping
 async function replay() {
   const runs = await loadRuns();
-  $('#meta').textContent = metaLine(runs.gpu.server, runs.gpu.seed);
+  $('#meta').textContent = metaLine(runs.gpu.server, runs.gpu.seed, runs.gpu.model);
   $('#source').textContent = `Recorded benchmark run ${+RUN} of ${runs.summary?.runs_per_device ?? '?'} for each device, replayed step for step. Each device was measured alone.`;
   let reps, t, last = performance.now();
   const restart = () => { reps = { gpu: new RunReplay(runs.gpu), ane: new RunReplay(runs.ane) }; t = 0; };
@@ -95,12 +98,13 @@ async function replay() {
 async function live() {
   const health = await json('api/health');
   if (!['gpu', 'ane'].every(d => health.devices?.includes(d))) throw new Error('live mode needs `apple_server.py` with both devices (the default --device both)');
+  const model = q.get('model') || 'typed-decisions';
   const seed = +(q.get('seed') || 20260924), params = Object.fromEntries(runner.params.map(p => [p.id, p.value]));
-  $('#meta').textContent = metaLine(health, seed);
+  $('#meta').textContent = metaLine(health, seed, model);
   $('#source').textContent = 'Live: both devices answer at the same time, sharing this Mac. The benchmark measures one device at a time.';
   const predict = async (obs, device) => {
     const r = await fetch('api/predict', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ state: obs.state, questions: obs.questions, model: 'typed-decisions', device }) });
+      body: JSON.stringify({ state: obs.state, questions: obs.questions, model, device }) });
     const body = await r.json();
     if (!r.ok) throw new Error(body.error);
     if (body.device !== device) throw new Error(`asked for ${device}, ran on ${body.device}`);
@@ -158,7 +162,7 @@ function gameSeconds(v) {
 function card(runs) {
   const s = runs.summary, g = s.devices.gpu, a = s.devices.ane, ms = x => `${x.toFixed(1)} ms`;
   const median = xs => { const v = [...xs].sort((p, q) => p - q), m = v.length >> 1; return v.length % 2 ? v[m] : (v[m - 1] + v[m]) / 2; };
-  const top = d => { const m = Math.max(...d.max_speed); return m.toFixed(1); };
+  const top = d => { const m = Math.max(...d.max_speed); return m.toFixed(1) + (m >= 31 ? ' (game cap)' : ''); };   // runner.js: speed = min(31, ...)
   const rows = [
     ['Latency P50', ms(g.latency_ms.p50), ms(a.latency_ms.p50), 'hi'],
     ['Latency P95', ms(g.latency_ms.p95), ms(a.latency_ms.p95), 'hi'],
@@ -174,14 +178,14 @@ function card(runs) {
       h('tbody', {}, rows.map(([k, x, y, cls]) => h('tr', {}, h('td', {}, k), h('td', { class: cls || '' }, x), h('td', { class: cls || '' }, y))))),
     h('p', {}, `${g.runs} runs per device, the same ${g.runs} seeds, ${s.seconds} game seconds each. ${g.decisions.toLocaleString('en')} GPU and ${a.decisions.toLocaleString('en')} ANE decisions. `
       + `Latency is laya-apple's own per-call measurement. Each device measured alone. Same score and crashes on ${same} of ${s.per_seed.length} seeds.`),
-    h('p', {}, [`laya-typed-decisions`, env.soc, `macOS ${env.macos}`, `laya-apple ${env.laya_apple}`, `MLX ${env.mlx}`, `coremltools ${env.coremltools}`].filter(Boolean).join(' · ')),
+    h('p', {}, [shortModel(s.model), env.soc, `macOS ${env.macos}`, `laya-apple ${env.laya_apple}`, `MLX ${env.mlx}`, `coremltools ${env.coremltools}`].filter(Boolean).join(' · ')),
     h('div', { class: 'repo' }, 'laya-apple  ', h('span', {}, 'github.com/tc3oliver/laya-apple')));
 }
 
 async function render() {
   const runs = await loadRuns();
   if (!runs.summary) throw new Error('render needs results/summary.json (run summarize.py)');
-  $('#meta').textContent = metaLine({ ...runs.gpu.server, soc: runs.summary.environment.gpu.soc }, runs.gpu.seed);
+  $('#meta').textContent = metaLine({ ...runs.gpu.server, soc: runs.summary.environment.gpu.soc }, runs.gpu.seed, runs.gpu.model);
   $('#source').textContent = `Recorded benchmark run ${+RUN} of ${runs.summary.runs_per_device} per device, replayed. Each device measured alone.`;
   card(runs);
   const reps = { gpu: new RunReplay(runs.gpu), ane: new RunReplay(runs.ane) };

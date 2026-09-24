@@ -1,0 +1,843 @@
+{
+ "model": "convaiinnovations/laya",
+ "seconds": 90,
+ "runs_per_device": 10,
+ "seeds": [
+  20260924,
+  20260925,
+  20260926,
+  20260927,
+  20260928,
+  20260929,
+  20260930,
+  20260931,
+  20260932,
+  20260933
+ ],
+ "params": {
+  "stay": 0.25
+ },
+ "step_s": 0.008333333333333333,
+ "max_rate": 40,
+ "environment": {
+  "gpu": {
+   "soc": "Apple M4 Max",
+   "laya_apple": "1.0.2",
+   "mlx": "0.32.2",
+   "coremltools": "9.0",
+   "python": "3.12.14",
+   "macos": "26.6.2"
+  },
+  "ane": {
+   "soc": "Apple M4 Max",
+   "laya_apple": "1.0.2",
+   "mlx": "0.32.2",
+   "coremltools": "9.0",
+   "python": "3.12.14",
+   "macos": "26.6.2"
+  }
+ },
+ "devices": {
+  "gpu": {
+   "runs": 10,
+   "seeds": [
+    20260924,
+    20260925,
+    20260926,
+    20260927,
+    20260928,
+    20260929,
+    20260930,
+    20260931,
+    20260932,
+    20260933
+   ],
+   "decisions": 36000,
+   "latency_ms": {
+    "mean": 9.328,
+    "p50": 9.243,
+    "p95": 9.69,
+    "p99": 9.764,
+    "min": 8.665,
+    "max": 13.62
+   },
+   "per_run_latency_ms": [
+    {
+     "seed": 20260924,
+     "p50": 9.254,
+     "p95": 9.692,
+     "p99": 9.77
+    },
+    {
+     "seed": 20260925,
+     "p50": 9.226,
+     "p95": 9.687,
+     "p99": 9.758
+    },
+    {
+     "seed": 20260926,
+     "p50": 9.22,
+     "p95": 9.68,
+     "p99": 9.771
+    },
+    {
+     "seed": 20260927,
+     "p50": 9.295,
+     "p95": 9.699,
+     "p99": 9.783
+    },
+    {
+     "seed": 20260928,
+     "p50": 9.242,
+     "p95": 9.689,
+     "p99": 9.766
+    },
+    {
+     "seed": 20260929,
+     "p50": 9.254,
+     "p95": 9.696,
+     "p99": 9.773
+    },
+    {
+     "seed": 20260930,
+     "p50": 9.214,
+     "p95": 9.671,
+     "p99": 9.723
+    },
+    {
+     "seed": 20260931,
+     "p50": 9.247,
+     "p95": 9.692,
+     "p99": 9.765
+    },
+    {
+     "seed": 20260932,
+     "p50": 9.262,
+     "p95": 9.684,
+     "p99": 9.745
+    },
+    {
+     "seed": 20260933,
+     "p50": 9.255,
+     "p95": 9.697,
+     "p99": 9.757
+    }
+   ],
+   "score_final": [
+    185,
+    185,
+    185,
+    185,
+    185,
+    185,
+    185,
+    185,
+    185,
+    185
+   ],
+   "best_score": [
+    185,
+    185,
+    185,
+    185,
+    185,
+    185,
+    185,
+    185,
+    185,
+    185
+   ],
+   "rows_cleared": [
+    185,
+    185,
+    185,
+    185,
+    185,
+    185,
+    185,
+    185,
+    185,
+    185
+   ],
+   "crashes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "survival_seconds": [
+    90,
+    90,
+    90,
+    90,
+    90,
+    90,
+    90,
+    90,
+    90,
+    90
+   ],
+   "distance": [
+    2550.05,
+    2550.05,
+    2550.05,
+    2550.05,
+    2550.05,
+    2550.05,
+    2550.05,
+    2550.05,
+    2550.05,
+    2550.05
+   ],
+   "decisions_per_run": [
+    3600,
+    3600,
+    3600,
+    3600,
+    3600,
+    3600,
+    3600,
+    3600,
+    3600,
+    3600
+   ],
+   "decisions_per_game_second": [
+    40,
+    40,
+    40,
+    40,
+    40,
+    40,
+    40,
+    40,
+    40,
+    40
+   ],
+   "decisions_per_wall_second": [
+    103.85,
+    104.4,
+    104.45,
+    104.01,
+    104.32,
+    104.1,
+    105.12,
+    104.16,
+    104.28,
+    104.09
+   ],
+   "max_speed": [
+    31,
+    31,
+    31,
+    31,
+    31,
+    31,
+    31,
+    31,
+    31,
+    31
+   ],
+   "speed_at_first_crash": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "runs_with_a_crash": 0,
+   "total_crashes": 0,
+   "action_counts": {
+    "STAY": 34621,
+    "LEFT": 689,
+    "RIGHT": 690
+   },
+   "choice_argmax_disagreements": 0,
+   "sequence_lengths": [
+    36,
+    39,
+    42
+   ],
+   "routing_reasons": [
+    "gpu_requested"
+   ]
+  },
+  "ane": {
+   "runs": 10,
+   "seeds": [
+    20260924,
+    20260925,
+    20260926,
+    20260927,
+    20260928,
+    20260929,
+    20260930,
+    20260931,
+    20260932,
+    20260933
+   ],
+   "decisions": 36000,
+   "latency_ms": {
+    "mean": 8.204,
+    "p50": 8.193,
+    "p95": 8.301,
+    "p99": 8.402,
+    "min": 7.657,
+    "max": 29.16
+   },
+   "per_run_latency_ms": [
+    {
+     "seed": 20260924,
+     "p50": 8.231,
+     "p95": 8.359,
+     "p99": 8.46
+    },
+    {
+     "seed": 20260925,
+     "p50": 8.202,
+     "p95": 8.303,
+     "p99": 8.381
+    },
+    {
+     "seed": 20260926,
+     "p50": 8.178,
+     "p95": 8.253,
+     "p99": 8.347
+    },
+    {
+     "seed": 20260927,
+     "p50": 8.219,
+     "p95": 8.306,
+     "p99": 8.422
+    },
+    {
+     "seed": 20260928,
+     "p50": 8.225,
+     "p95": 8.325,
+     "p99": 8.422
+    },
+    {
+     "seed": 20260929,
+     "p50": 8.183,
+     "p95": 8.251,
+     "p99": 8.331
+    },
+    {
+     "seed": 20260930,
+     "p50": 8.182,
+     "p95": 8.275,
+     "p99": 8.369
+    },
+    {
+     "seed": 20260931,
+     "p50": 8.228,
+     "p95": 8.323,
+     "p99": 8.418
+    },
+    {
+     "seed": 20260932,
+     "p50": 8.185,
+     "p95": 8.309,
+     "p99": 8.415
+    },
+    {
+     "seed": 20260933,
+     "p50": 8.174,
+     "p95": 8.212,
+     "p99": 8.301
+    }
+   ],
+   "score_final": [
+    185,
+    185,
+    185,
+    185,
+    185,
+    185,
+    185,
+    185,
+    185,
+    185
+   ],
+   "best_score": [
+    185,
+    185,
+    185,
+    185,
+    185,
+    185,
+    185,
+    185,
+    185,
+    185
+   ],
+   "rows_cleared": [
+    185,
+    185,
+    185,
+    185,
+    185,
+    185,
+    185,
+    185,
+    185,
+    185
+   ],
+   "crashes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "survival_seconds": [
+    90,
+    90,
+    90,
+    90,
+    90,
+    90,
+    90,
+    90,
+    90,
+    90
+   ],
+   "distance": [
+    2550.05,
+    2550.05,
+    2550.05,
+    2550.05,
+    2550.05,
+    2550.05,
+    2550.05,
+    2550.05,
+    2550.05,
+    2550.05
+   ],
+   "decisions_per_run": [
+    3600,
+    3600,
+    3600,
+    3600,
+    3600,
+    3600,
+    3600,
+    3600,
+    3600,
+    3600
+   ],
+   "decisions_per_game_second": [
+    40,
+    40,
+    40,
+    40,
+    40,
+    40,
+    40,
+    40,
+    40,
+    40
+   ],
+   "decisions_per_wall_second": [
+    117.62,
+    118.33,
+    118.65,
+    118.36,
+    118.28,
+    118.67,
+    118.69,
+    118.24,
+    118.55,
+    119.03
+   ],
+   "max_speed": [
+    31,
+    31,
+    31,
+    31,
+    31,
+    31,
+    31,
+    31,
+    31,
+    31
+   ],
+   "speed_at_first_crash": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "runs_with_a_crash": 0,
+   "total_crashes": 0,
+   "action_counts": {
+    "STAY": 34621,
+    "LEFT": 689,
+    "RIGHT": 690
+   },
+   "choice_argmax_disagreements": 0,
+   "sequence_lengths": [
+    36,
+    39,
+    42
+   ],
+   "routing_reasons": [
+    "ane_requested"
+   ]
+  }
+ },
+ "per_seed": [
+  {
+   "seed": 20260924,
+   "gpu": {
+    "rows_cleared": 185,
+    "crashes": 0,
+    "decisions": 3600,
+    "max_speed": 31,
+    "action_counts": {
+     "STAY": 3461,
+     "LEFT": 69,
+     "RIGHT": 70
+    },
+    "score": 185,
+    "best": 185
+   },
+   "ane": {
+    "rows_cleared": 185,
+    "crashes": 0,
+    "decisions": 3600,
+    "max_speed": 31,
+    "action_counts": {
+     "STAY": 3461,
+     "LEFT": 69,
+     "RIGHT": 70
+    },
+    "score": 185,
+    "best": 185
+   },
+   "same_outcome": true,
+   "same_action_sequence": false,
+   "decisions_at_different_steps": 2636,
+   "ane_answered_a_step_sooner": 39
+  },
+  {
+   "seed": 20260925,
+   "gpu": {
+    "rows_cleared": 185,
+    "crashes": 0,
+    "decisions": 3600,
+    "max_speed": 31,
+    "action_counts": {
+     "STAY": 3445,
+     "LEFT": 77,
+     "RIGHT": 78
+    },
+    "score": 185,
+    "best": 185
+   },
+   "ane": {
+    "rows_cleared": 185,
+    "crashes": 0,
+    "decisions": 3600,
+    "max_speed": 31,
+    "action_counts": {
+     "STAY": 3445,
+     "LEFT": 77,
+     "RIGHT": 78
+    },
+    "score": 185,
+    "best": 185
+   },
+   "same_outcome": true,
+   "same_action_sequence": true,
+   "decisions_at_different_steps": 93,
+   "ane_answered_a_step_sooner": 93
+  },
+  {
+   "seed": 20260926,
+   "gpu": {
+    "rows_cleared": 185,
+    "crashes": 0,
+    "decisions": 3600,
+    "max_speed": 31,
+    "action_counts": {
+     "STAY": 3471,
+     "LEFT": 65,
+     "RIGHT": 64
+    },
+    "score": 185,
+    "best": 185
+   },
+   "ane": {
+    "rows_cleared": 185,
+    "crashes": 0,
+    "decisions": 3600,
+    "max_speed": 31,
+    "action_counts": {
+     "STAY": 3471,
+     "LEFT": 65,
+     "RIGHT": 64
+    },
+    "score": 185,
+    "best": 185
+   },
+   "same_outcome": true,
+   "same_action_sequence": true,
+   "decisions_at_different_steps": 217,
+   "ane_answered_a_step_sooner": 217
+  },
+  {
+   "seed": 20260927,
+   "gpu": {
+    "rows_cleared": 185,
+    "crashes": 0,
+    "decisions": 3600,
+    "max_speed": 31,
+    "action_counts": {
+     "STAY": 3462,
+     "LEFT": 69,
+     "RIGHT": 69
+    },
+    "score": 185,
+    "best": 185
+   },
+   "ane": {
+    "rows_cleared": 185,
+    "crashes": 0,
+    "decisions": 3600,
+    "max_speed": 31,
+    "action_counts": {
+     "STAY": 3462,
+     "LEFT": 69,
+     "RIGHT": 69
+    },
+    "score": 185,
+    "best": 185
+   },
+   "same_outcome": true,
+   "same_action_sequence": true,
+   "decisions_at_different_steps": 77,
+   "ane_answered_a_step_sooner": 77
+  },
+  {
+   "seed": 20260928,
+   "gpu": {
+    "rows_cleared": 185,
+    "crashes": 0,
+    "decisions": 3600,
+    "max_speed": 31,
+    "action_counts": {
+     "STAY": 3472,
+     "LEFT": 64,
+     "RIGHT": 64
+    },
+    "score": 185,
+    "best": 185
+   },
+   "ane": {
+    "rows_cleared": 185,
+    "crashes": 0,
+    "decisions": 3600,
+    "max_speed": 31,
+    "action_counts": {
+     "STAY": 3472,
+     "LEFT": 64,
+     "RIGHT": 64
+    },
+    "score": 185,
+    "best": 185
+   },
+   "same_outcome": true,
+   "same_action_sequence": true,
+   "decisions_at_different_steps": 69,
+   "ane_answered_a_step_sooner": 69
+  },
+  {
+   "seed": 20260929,
+   "gpu": {
+    "rows_cleared": 185,
+    "crashes": 0,
+    "decisions": 3600,
+    "max_speed": 31,
+    "action_counts": {
+     "STAY": 3465,
+     "LEFT": 68,
+     "RIGHT": 67
+    },
+    "score": 185,
+    "best": 185
+   },
+   "ane": {
+    "rows_cleared": 185,
+    "crashes": 0,
+    "decisions": 3600,
+    "max_speed": 31,
+    "action_counts": {
+     "STAY": 3465,
+     "LEFT": 68,
+     "RIGHT": 67
+    },
+    "score": 185,
+    "best": 185
+   },
+   "same_outcome": true,
+   "same_action_sequence": true,
+   "decisions_at_different_steps": 147,
+   "ane_answered_a_step_sooner": 147
+  },
+  {
+   "seed": 20260930,
+   "gpu": {
+    "rows_cleared": 185,
+    "crashes": 0,
+    "decisions": 3600,
+    "max_speed": 31,
+    "action_counts": {
+     "STAY": 3459,
+     "LEFT": 70,
+     "RIGHT": 71
+    },
+    "score": 185,
+    "best": 185
+   },
+   "ane": {
+    "rows_cleared": 185,
+    "crashes": 0,
+    "decisions": 3600,
+    "max_speed": 31,
+    "action_counts": {
+     "STAY": 3459,
+     "LEFT": 70,
+     "RIGHT": 71
+    },
+    "score": 185,
+    "best": 185
+   },
+   "same_outcome": true,
+   "same_action_sequence": true,
+   "decisions_at_different_steps": 196,
+   "ane_answered_a_step_sooner": 196
+  },
+  {
+   "seed": 20260931,
+   "gpu": {
+    "rows_cleared": 185,
+    "crashes": 0,
+    "decisions": 3600,
+    "max_speed": 31,
+    "action_counts": {
+     "STAY": 3458,
+     "LEFT": 71,
+     "RIGHT": 71
+    },
+    "score": 185,
+    "best": 185
+   },
+   "ane": {
+    "rows_cleared": 185,
+    "crashes": 0,
+    "decisions": 3600,
+    "max_speed": 31,
+    "action_counts": {
+     "STAY": 3458,
+     "LEFT": 71,
+     "RIGHT": 71
+    },
+    "score": 185,
+    "best": 185
+   },
+   "same_outcome": true,
+   "same_action_sequence": true,
+   "decisions_at_different_steps": 59,
+   "ane_answered_a_step_sooner": 59
+  },
+  {
+   "seed": 20260932,
+   "gpu": {
+    "rows_cleared": 185,
+    "crashes": 0,
+    "decisions": 3600,
+    "max_speed": 31,
+    "action_counts": {
+     "STAY": 3468,
+     "LEFT": 66,
+     "RIGHT": 66
+    },
+    "score": 185,
+    "best": 185
+   },
+   "ane": {
+    "rows_cleared": 185,
+    "crashes": 0,
+    "decisions": 3600,
+    "max_speed": 31,
+    "action_counts": {
+     "STAY": 3468,
+     "LEFT": 66,
+     "RIGHT": 66
+    },
+    "score": 185,
+    "best": 185
+   },
+   "same_outcome": true,
+   "same_action_sequence": true,
+   "decisions_at_different_steps": 188,
+   "ane_answered_a_step_sooner": 188
+  },
+  {
+   "seed": 20260933,
+   "gpu": {
+    "rows_cleared": 185,
+    "crashes": 0,
+    "decisions": 3600,
+    "max_speed": 31,
+    "action_counts": {
+     "STAY": 3460,
+     "LEFT": 70,
+     "RIGHT": 70
+    },
+    "score": 185,
+    "best": 185
+   },
+   "ane": {
+    "rows_cleared": 185,
+    "crashes": 0,
+    "decisions": 3600,
+    "max_speed": 31,
+    "action_counts": {
+     "STAY": 3460,
+     "LEFT": 70,
+     "RIGHT": 70
+    },
+    "score": 185,
+    "best": 185
+   },
+   "same_outcome": true,
+   "same_action_sequence": true,
+   "decisions_at_different_steps": 409,
+   "ane_answered_a_step_sooner": 409
+  }
+ ],
+ "method": "The upstream Lane Runner (static/demos/runner.js, unchanged) is stepped headlessly at 1/120 s. One request is in flight at a time; while it is, the game advances by the measured HTTP round trip rounded up to whole steps, then the action is applied (upstream tools/record_run.mjs). Decisions are capped at 40 per game second, as in the browser. Each device is measured in its own server process with only that device loaded, one after the other, never concurrently."
+}
