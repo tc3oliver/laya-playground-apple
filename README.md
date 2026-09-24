@@ -186,7 +186,7 @@ use `RUN=3 npm run render`.
 | coremltools | 9.0 |
 | Model | `convaiinnovations/laya-typed-decisions`, revision `f9ab0b228f0fc0f14d873dbc99038f135c2da1b2`, FP16 on both devices |
 | ANE artifact (english) | `convaiinnovations/laya` revision `c5d78730f3493e4fe16d61507ef4b78eef7318cf`, `bc1s-masked` L64, `artifact_sha256` `f6263eb65898…`, 10,594 of 10,594 ops on the Neural Engine, parity passed (probability max \|Δ\| 0.0093), built locally |
-| ANE artifact | `bc1s-masked`, bucket L64 (every prompt is 36–45 tokens), `artifact_sha256` `1273fcd30495…`, 10,594 ops of 10,594 on the Neural Engine with 0 transitions, parity passed (probability max \|Δ\| 0.0046, 0 hard mismatches), built locally by `laya-apple artifacts build` |
+| ANE artifact (typed-decisions) | `bc1s-masked`, bucket L64 (every prompt is 36–45 tokens), `artifact_sha256` `1273fcd30495…`, 10,594 ops of 10,594 on the Neural Engine with 0 transitions, parity passed (probability max \|Δ\| 0.0046, 0 hard mismatches), built locally by `laya-apple artifacts build` |
 | GPU runtime | MLX, weights `mlx:4fa56de72383`, FP16 |
 | Load | Load average and `pmset` thermal state before and after each device are in `results/<device>-system.json`. No other laya-apple process was running |
 
